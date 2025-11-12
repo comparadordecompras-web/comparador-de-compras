@@ -1,10 +1,13 @@
 import React from 'react';
-import { ListChecks, BarChart3, Info } from 'lucide-react';
+import { ListChecks, BarChart3, Info, LogOut, User } from 'lucide-react';
 import { AppView } from '../types';
+import { User as SupabaseUser } from '@supabase/supabase-js';
 
 interface HeaderProps {
   currentView: AppView;
   onViewChange: (view: AppView) => void;
+  user: SupabaseUser | null;
+  onLogout: () => void;
 }
 
 // Componente auxiliar para links de navegação
@@ -26,12 +29,14 @@ const NavLink: React.FC<{ icon: React.ReactNode, label: string, view: AppView, c
   </a>
 );
 
-const Header: React.FC<HeaderProps> = ({ currentView, onViewChange }) => {
+const Header: React.FC<HeaderProps> = ({ currentView, onViewChange, user, onLogout }) => {
+  const userEmail = user?.email || 'Usuário';
+
   return (
     <header className="bg-brand-primary shadow-md">
       <div className="container mx-auto px-4 md:px-8 py-4">
         <div className="flex flex-col md:flex-row md:justify-between md:items-center">
-          <div>
+          <div className="mb-4 md:mb-0">
             <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">
               🛒 Comparador de Compras Olímpia
             </h1>
@@ -39,6 +44,24 @@ const Header: React.FC<HeaderProps> = ({ currentView, onViewChange }) => {
               Planeje sua lista de compras mensal e economize comparando preços.
             </p>
           </div>
+          
+          {/* User Info and Logout */}
+          {user && (
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center text-white text-sm">
+                <User className="w-4 h-4 mr-2 text-blue-200" />
+                <span>{userEmail}</span>
+              </div>
+              <button
+                onClick={onLogout}
+                className="flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium bg-red-600 text-white hover:bg-red-700 transition-colors"
+                aria-label="Sair da conta"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Sair</span>
+              </button>
+            </div>
+          )}
         </div>
         
         {/* Navigation Menu */}
