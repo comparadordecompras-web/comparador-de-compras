@@ -13,7 +13,8 @@ import Login from './src/pages/Login';
 import About from './src/pages/About';
 import SavedListsPage from './src/pages/SavedListsPage';
 import LandingPage from './src/pages/LandingPage';
-import ProductRegistrationPage from './src/pages/ProductRegistrationPage'; // Import new page
+import ProductRegistrationPage from './src/pages/ProductRegistrationPage';
+import ProductCatalogPage from './src/pages/ProductCatalogPage'; // Import new page
 import { SUPERMARKETS } from './src/constants';
 import { supabase } from './src/integrations/supabase/client';
 import { showError, showSuccess } from './src/utils/toast';
@@ -152,6 +153,10 @@ const AppContent: React.FC = () => {
             />
         );
     }
+    
+    if (currentView === 'product_catalog') {
+        return <ProductCatalogPage />;
+    }
 
     if (currentView === 'analysis') {
       return <AnalysisSection items={items} />;
@@ -202,7 +207,7 @@ const AppContent: React.FC = () => {
       />
       <main className="container mx-auto p-4 md:p-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className={currentView === 'product_registration' ? 'lg:col-span-3' : 'lg:col-span-2'}>
+          <div className={currentView === 'product_registration' || currentView === 'product_catalog' ? 'lg:col-span-3' : 'lg:col-span-2'}>
             {renderMainContent()}
           </div>
           <div className="space-y-8">
