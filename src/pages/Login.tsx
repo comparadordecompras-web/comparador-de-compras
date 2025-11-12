@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { supabase } from '../integrations/supabase/client';
-import { showSuccess, showError } from '../utils/toast';
+import { showSuccess } from '../utils/toast';
 
 const Login: React.FC = () => {
   useEffect(() => {
