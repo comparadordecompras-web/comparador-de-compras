@@ -90,7 +90,7 @@ const Header: React.FC<HeaderProps> = ({ currentView, onViewChange, user, onLogo
             />
             <NavLink 
               icon={<Info className="w-5 h-5" />} 
-              label="Sobre (Em Breve)" 
+              label="Sobre" 
               view="about"
               currentView={currentView}
               onClick={onViewChange}
