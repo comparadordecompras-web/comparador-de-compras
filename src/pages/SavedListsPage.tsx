@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useMonthlyLists } from '../hooks/useMonthlyLists';
 import { ListChecks, Calendar, DollarSign, Trash2, Eye } from 'lucide-react';
 import ListDetailsModal from '../components/ListDetailsModal';
@@ -17,8 +17,14 @@ const formatCurrency = (value: number) => {
 };
 
 const SavedListsPage: React.FC = () => {
-  const { savedLists, isLoading } = useMonthlyLists();
+  const { savedLists, isLoading, removeList } = useMonthlyLists();
   const [selectedList, setSelectedList] = useState<MonthlyList | null>(null);
+
+  const handleDelete = useCallback((listId: string, listName: string) => {
+    if (window.confirm(`Tem certeza que deseja excluir a lista "${listName}"? Esta ação é irreversível.`)) {
+      removeList(listId, listName);
+    }
+  }, [removeList]);
 
   if (isLoading) {
     return (
@@ -82,7 +88,7 @@ const SavedListsPage: React.FC = () => {
             <div className="mt-4 flex justify-end space-x-3">
               <button
                 className="text-sm text-red-600 hover:text-red-800 flex items-center transition-colors"
-                onClick={() => alert('Funcionalidade de exclusão em breve.')}
+                onClick={() => handleDelete(list.id, list.name)}
               >
                 <Trash2 className="w-4 h-4 mr-1" />
                 Excluir

@@ -16,6 +16,7 @@ interface UseMonthlyListsResult {
   savedLists: MonthlyList[];
   isLoading: boolean;
   saveList: (listName: string, items: ShoppingItem[], totalOptimized: number) => Promise<void>;
+  removeList: (listId: string, listName: string) => Promise<void>;
   fetchLists: () => Promise<void>;
 }
 
@@ -98,5 +99,26 @@ export function useMonthlyLists(): UseMonthlyListsResult {
     }
   }, [user]);
 
-  return { savedLists, isLoading, saveList, fetchLists };
+  const removeList = useCallback(async (listId: string, listName: string) => {
+    if (!user) return;
+
+    const toastId = showLoading(`Excluindo lista "${listName}"...`);
+
+    const { error } = await supabase
+      .from('monthly_lists')
+      .delete()
+      .eq('id', listId);
+
+    dismissToast(toastId);
+
+    if (error) {
+      console.error('Error removing monthly list:', error);
+      showError('Falha ao excluir a lista. Tente novamente.');
+    } else {
+      setSavedLists(prev => prev.filter(list => list.id !== listId));
+      showSuccess(`Lista "${listName}" excluída com sucesso.`);
+    }
+  }, [user]);
+
+  return { savedLists, isLoading, saveList, removeList, fetchLists };
 }
