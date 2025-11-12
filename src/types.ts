@@ -11,6 +11,13 @@ export interface ShoppingItem {
   prices: Record<Supermarket, number>;
 }
 
+export interface ProductData {
+  name: string;
+  unit: Unit;
+  category: string;
+  prices: Record<Supermarket, number>;
+}
+
 export type AppView = 'list' | 'analysis' | 'about';
 
 export type SortKey = 'none' | 'name' | 'category';

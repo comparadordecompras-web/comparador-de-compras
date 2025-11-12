@@ -11,7 +11,8 @@ import MapSection from './src/components/MapSection';
 import SortControl from './src/components/SortControl';
 import AnalysisSection from './src/components/AnalysisSection';
 import Login from './src/pages/Login';
-import About from './src/pages/About'; // Importando o novo componente About
+import About from './src/pages/About';
+import BarcodeScanner from './src/components/BarcodeScanner'; // Importando o novo componente
 import { SUPERMARKETS } from './src/constants';
 import { supabase } from './src/integrations/supabase/client';
 import { showError } from './src/utils/toast';
@@ -119,7 +120,7 @@ const AppContent: React.FC = () => {
     }
     
     if (currentView === 'about') {
-        return <About />; // Usando o componente About dedicado
+        return <About />;
     }
 
     // Default view: 'list'
@@ -165,6 +166,7 @@ const AppContent: React.FC = () => {
           <div className="space-y-8">
             {currentView === 'list' && (
               <>
+                <BarcodeScanner onProductFound={handleAddItem} />
                 <AddItemForm onAddItem={handleAddItem} />
                 {items.length > 0 && <Totals totals={totals} />}
                 <Actions items={items} onClearList={handleClearList} />
