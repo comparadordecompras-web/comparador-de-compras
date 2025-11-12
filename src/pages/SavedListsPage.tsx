@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { useMonthlyLists } from '../hooks/useMonthlyLists';
-import { ListChecks, Calendar, DollarSign, Trash2, Eye } from 'lucide-react';
+import { ListChecks, Calendar, DollarSign, Trash2, Eye, Download } from 'lucide-react';
 import ListDetailsModal from '../components/ListDetailsModal';
 import { ShoppingItem } from '../types';
 
@@ -12,11 +12,15 @@ interface MonthlyList {
   created_at: string;
 }
 
+interface SavedListsPageProps {
+  onImportList: (listName: string, items: ShoppingItem[]) => void;
+}
+
 const formatCurrency = (value: number) => {
   return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 };
 
-const SavedListsPage: React.FC = () => {
+const SavedListsPage: React.FC<SavedListsPageProps> = ({ onImportList }) => {
   const { savedLists, isLoading, removeList } = useMonthlyLists();
   const [selectedList, setSelectedList] = useState<MonthlyList | null>(null);
 
@@ -25,6 +29,10 @@ const SavedListsPage: React.FC = () => {
       removeList(listId, listName);
     }
   }, [removeList]);
+
+  const handleImport = useCallback((list: MonthlyList) => {
+    onImportList(list.name, list.items);
+  }, [onImportList]);
 
   if (isLoading) {
     return (
@@ -87,6 +95,13 @@ const SavedListsPage: React.FC = () => {
 
             <div className="mt-4 flex justify-end space-x-3">
               <button
+                className="text-sm bg-gray-200 text-gray-700 px-3 py-1 rounded-md hover:bg-gray-300 transition-colors flex items-center"
+                onClick={() => handleImport(list)}
+              >
+                <Download className="w-4 h-4 mr-1" />
+                Importar
+              </button>
+              <button
                 className="text-sm text-red-600 hover:text-red-800 flex items-center transition-colors"
                 onClick={() => handleDelete(list.id, list.name)}
               >
@@ -108,6 +123,7 @@ const SavedListsPage: React.FC = () => {
       <ListDetailsModal 
         list={selectedList} 
         onClose={() => setSelectedList(null)} 
+        onImportList={handleImport} // Passando a função de importação para o modal também
       />
     </div>
   );
