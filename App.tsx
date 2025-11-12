@@ -1,17 +1,17 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { ShoppingItem, Supermarket, SortKey, SortDirection, AppView } from './types';
-import { SessionContextProvider, useSession } from './components/SessionContextProvider';
-import { useShoppingItems } from './hooks/useShoppingItems';
-import Header from './components/Header';
-import AddItemForm from './components/AddItemForm';
-import ShoppingList from './components/ShoppingList';
-import Totals from './components/Totals';
-import Actions from './components/Actions';
-import MapSection from './components/MapSection';
-import SortControl from './components/SortControl';
-import AnalysisSection from './components/AnalysisSection';
-import Login from './pages/Login';
-import { SUPERMARKETS } from './constants';
+import { ShoppingItem, Supermarket, SortKey, SortDirection, AppView } from './src/types';
+import { SessionContextProvider, useSession } from './src/components/SessionContextProvider';
+import { useShoppingItems } from './src/hooks/useShoppingItems';
+import Header from './src/components/Header';
+import AddItemForm from './src/components/AddItemForm';
+import ShoppingList from './src/components/ShoppingList';
+import Totals from './src/components/Totals';
+import Actions from './src/components/Actions';
+import MapSection from './src/components/MapSection';
+import SortControl from './src/components/SortControl';
+import AnalysisSection from './src/components/AnalysisSection';
+import Login from './src/pages/Login';
+import { SUPERMARKETS } from './src/constants';
 
 // --- Main Application Content Component ---
 const AppContent: React.FC = () => {
