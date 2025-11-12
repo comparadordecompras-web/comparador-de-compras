@@ -1,0 +1,5 @@
+{
+  "name": "Comparador de Compras Olímpia",
+  "description": "Um aplicativo de lista de compras mensal para comparar preços entre os supermercados Iquegami, Proença e Max em Olímpia-SP, ajudando você a economizar.",
+  "requestFramePermissions": []
+}
