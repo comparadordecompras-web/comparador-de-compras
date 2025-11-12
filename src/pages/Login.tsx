@@ -7,7 +7,7 @@ const Login: React.FC = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-brand-light p-4">
       <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-xl">
-        <h1 className="text-3xl font-bold text-center text-brand-primary mb-6">
+        <h1 className="text-3xl font-bold text-center text-brand-dark mb-6">
           Acesse o Comparador
         </h1>
         <Auth
