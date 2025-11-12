@@ -19,8 +19,6 @@ const Login: React.FC = () => {
         showSuccess('Verificação de MFA bem-sucedida.');
       }
       
-      // Handle potential errors during auth flow (e.g., invalid email/password)
-      // Note: Auth UI handles most input errors, but this catches broader issues.
       if (session?.user && event === 'SIGNED_IN') {
         // The session context handles the redirect, we just show the toast.
       }
@@ -31,9 +29,9 @@ const Login: React.FC = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-brand-light p-4">
-      <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-xl">
-        <h1 className="text-3xl font-bold text-center text-brand-dark mb-6">
-          Acesse o Comparador
+      <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-2xl border border-gray-100">
+        <h1 className="text-3xl font-extrabold text-center text-brand-primary mb-8">
+          🛒 Comparador Olímpia
         </h1>
         <Auth
           supabaseClient={supabase}
@@ -45,12 +43,21 @@ const Login: React.FC = () => {
                 colors: {
                   brand: '#1D4ED8', // brand-primary
                   brandAccent: '#10B981', // brand-secondary
+                  // Ajustes para um visual mais limpo
+                  inputBackground: '#F9FAFB',
+                  inputBorder: '#E5E7EB',
+                  inputBorderHover: '#D1D5DB',
+                  inputBorderFocus: '#1D4ED8',
+                },
+                radii: {
+                    borderRadiusButton: '0.5rem', // rounded-lg
+                    inputBorderRadius: '0.5rem',
                 },
               },
             },
           }}
           theme="light"
-          view="sign_in" // Force initial view to sign_in to prevent routing issues
+          view="sign_in"
           localization={{
             variables: {
               sign_in: {
