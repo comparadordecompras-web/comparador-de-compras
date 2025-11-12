@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { ShoppingItem, Unit } from '../types';
 import { SUPERMARKETS, UNITS, CATEGORIES } from '../constants';

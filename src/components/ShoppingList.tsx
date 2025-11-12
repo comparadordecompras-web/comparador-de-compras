@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { ShoppingItem } from '../types';
 import ShoppingListItem from './ShoppingListItem';

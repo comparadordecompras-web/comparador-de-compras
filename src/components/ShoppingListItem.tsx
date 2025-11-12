@@ -1,4 +1,3 @@
-
 import React, { useMemo } from 'react';
 import { ShoppingItem, Supermarket } from '../types';
 import { SUPERMARKETS, UNITS } from '../constants';

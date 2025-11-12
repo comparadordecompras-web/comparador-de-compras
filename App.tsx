@@ -85,7 +85,8 @@ const AppContent: React.FC = () => {
     }, initialTotals);
 
     const optimizedTotal = items.reduce((sum, item) => {
-      const validPrices = Object.values(item.prices).filter(p => p > 0);
+      // Fix: Explicitly cast Object.values to number[]
+      const validPrices = (Object.values(item.prices) as number[]).filter(p => p > 0);
       const minPrice = validPrices.length > 0 ? Math.min(...validPrices) : 0;
       return sum + minPrice * item.quantity;
     }, 0);
