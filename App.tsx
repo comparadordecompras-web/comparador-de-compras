@@ -166,7 +166,11 @@ const AppContent: React.FC = () => {
               <>
                 <AddItemForm onAddItem={handleAddItem} />
                 {items.length > 0 && <Totals totals={totals} />}
-                <Actions items={items} onClearList={handleClearList} />
+                <Actions 
+                  items={items} 
+                  onClearList={handleClearList} 
+                  totalOptimized={totals.optimized} // Pass optimized total
+                />
               </>
             )}
             {currentView !== 'list' && (
