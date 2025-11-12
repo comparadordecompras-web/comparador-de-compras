@@ -1,5 +1,5 @@
 import React from 'react';
-import { ListChecks, BarChart3, Info, LogOut, User } from 'lucide-react';
+import { ListChecks, BarChart3, Info, LogOut, User, Archive } from 'lucide-react';
 import { AppView } from '../types';
 import { User as SupabaseUser } from '@supabase/supabase-js';
 
@@ -78,6 +78,13 @@ const Header: React.FC<HeaderProps> = ({ currentView, onViewChange, user, onLogo
               icon={<BarChart3 className="w-5 h-5" />} 
               label="Análise" 
               view="analysis"
+              currentView={currentView}
+              onClick={onViewChange}
+            />
+            <NavLink 
+              icon={<Archive className="w-5 h-5" />} 
+              label="Listas Salvas" 
+              view="saved_lists"
               currentView={currentView}
               onClick={onViewChange}
             />

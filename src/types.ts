@@ -18,7 +18,7 @@ export interface ProductData {
   prices: Record<Supermarket, number>;
 }
 
-export type AppView = 'list' | 'analysis' | 'about';
+export type AppView = 'list' | 'analysis' | 'about' | 'saved_lists';
 
 export type SortKey = 'none' | 'name' | 'category';
 

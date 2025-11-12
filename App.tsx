@@ -11,6 +11,7 @@ import SortControl from './src/components/SortControl';
 import AnalysisSection from './src/components/AnalysisSection';
 import Login from './src/pages/Login';
 import About from './src/pages/About';
+import SavedListsPage from './src/pages/SavedListsPage';
 import { SUPERMARKETS } from './src/constants';
 import { supabase } from './src/integrations/supabase/client';
 import { showError } from './src/utils/toast';
@@ -117,6 +118,10 @@ const AppContent: React.FC = () => {
       return <AnalysisSection items={items} />;
     }
     
+    if (currentView === 'saved_lists') {
+      return <SavedListsPage />;
+    }
+
     if (currentView === 'about') {
         return <About />;
     }
@@ -169,7 +174,7 @@ const AppContent: React.FC = () => {
                 <Actions 
                   items={items} 
                   onClearList={handleClearList} 
-                  totalOptimized={totals.optimized} // Pass optimized total
+                  totalOptimized={totals.optimized}
                 />
               </>
             )}
