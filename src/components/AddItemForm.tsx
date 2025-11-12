@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { ShoppingItem, Unit, Supermarket } from '../types';
 import { SUPERMARKETS, UNITS, CATEGORIES } from '../constants';
-import { Scan } from 'lucide-react';
+import { Scan, Barcode } from 'lucide-react';
 import BarcodeScannerModal from './BarcodeScannerModal';
 import { useProducts } from '../hooks/useProducts'; // Use the new hook
 import { showSuccess, showError, showLoading, dismissToast } from '../utils/toast';
@@ -36,6 +36,10 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onAddItem, onBarcodeNotFound 
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setPrices(prev => ({ ...prev, [name]: value }));
+  };
+  
+  const handleBarcodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setBarcode(e.target.value.trim() || undefined);
   };
 
   const handleScanSuccess = useCallback(async (decodedText: string) => {
@@ -117,18 +121,21 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onAddItem, onBarcodeNotFound 
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && <p className="text-red-500 text-sm">{error}</p>}
           
-          {/* Item Name and Scanner Button */}
+          {/* Barcode Input and Scanner Button */}
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700">Nome do Item</label>
+            <label htmlFor="barcode" className="block text-sm font-medium text-gray-700">Código de Barras (Opcional)</label>
             <div className="flex space-x-2 mt-1">
-              <input
-                type="text"
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Ex: Arroz 5kg"
-                className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-primary focus:border-brand-primary"
-              />
+              <div className="relative flex-grow">
+                <Barcode className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
+                <input
+                  type="text"
+                  id="barcode"
+                  value={barcode || ''}
+                  onChange={handleBarcodeChange}
+                  placeholder="Digite ou escaneie o código"
+                  className="block w-full border border-gray-300 rounded-md shadow-sm py-2 pl-10 pr-3 focus:outline-none focus:ring-brand-primary focus:border-brand-primary"
+                />
+              </div>
               <button
                 type="button"
                 onClick={() => setIsScannerOpen(true)}
@@ -138,12 +145,19 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onAddItem, onBarcodeNotFound 
                 <Scan className="w-5 h-5" />
               </button>
             </div>
-            {barcode && (
-              <p className="text-xs text-gray-500 mt-1">
-                Código de Barras: {barcode} 
-                <button type="button" onClick={() => setBarcode(undefined)} className="ml-2 text-red-500 hover:text-red-700">(Limpar)</button>
-              </p>
-            )}
+          </div>
+          
+          {/* Item Name */}
+          <div>
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700">Nome do Item</label>
+            <input
+              type="text"
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Ex: Arroz 5kg"
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-primary focus:border-brand-primary"
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
