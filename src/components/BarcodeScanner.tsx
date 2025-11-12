@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { Scan, Search, CameraOff } from 'lucide-react';
+import { QrCode, Search, CameraOff } from 'lucide-react';
 import { lookupProductByBarcode } from '../utils/productLookup';
 import { ShoppingItem } from '../types';
 import { showLoading, showSuccess, showError, dismissToast } from '../utils/toast';
@@ -20,7 +20,7 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onProductFound }) => {
 
     const toastId = showLoading(`Buscando produto para o código ${trimmedBarcode}...`);
 
-    // Simulação de busca de produto
+    // Simulação de busca de produto (funciona para códigos de barras e QR codes que retornam um código)
     const productData = lookupProductByBarcode(trimmedBarcode);
 
     dismissToast(toastId);
@@ -55,34 +55,34 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onProductFound }) => {
 
   const handleScanError = useCallback((errorMessage: string) => {
     // Apenas logamos erros de câmera, mas não interrompemos a UI
-    console.error("Camera scan error:", errorMessage);
+    // console.error("Camera scan error:", errorMessage);
   }, []);
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-brand-secondary">
       <h2 className="text-xl font-bold mb-4 text-brand-dark flex items-center">
-        <Scan className="w-5 h-5 mr-2 text-brand-secondary" />
-        Adicionar por Código de Barras
+        <QrCode className="w-5 h-5 mr-2 text-brand-secondary" />
+        Leitor de QR Code / Código de Barras
       </h2>
 
       {/* Botão de Ativar/Desativar Câmera */}
       <button
         onClick={() => setIsCameraActive(prev => !prev)}
-        className={`w-full flex items-center justify-center py-2 px-4 rounded-md shadow-sm transition-colors mb-4 ${
+        className={`w-full flex items-center justify-center py-3 px-4 rounded-lg shadow-lg transition-all duration-200 ${
           isCameraActive
-            ? 'bg-red-500 text-white hover:bg-red-600'
+            ? 'bg-red-600 text-white hover:bg-red-700'
             : 'bg-brand-secondary text-white hover:bg-green-600'
         }`}
       >
         {isCameraActive ? (
           <>
             <CameraOff className="w-5 h-5 mr-2" />
-            Parar Câmera
+            Parar Leitor
           </>
         ) : (
           <>
-            <Scan className="w-5 h-5 mr-2" />
-            {window.navigator.mediaDevices && window.navigator.mediaDevices.getUserMedia ? 'Ativar Leitor (Câmera)' : 'Ativar Leitor (Simulação)'}
+            <QrCode className="w-5 h-5 mr-2" />
+            Ativar Câmera para Escanear
           </>
         )}
       </button>
