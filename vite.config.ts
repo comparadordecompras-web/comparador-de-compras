@@ -18,6 +18,10 @@ export default defineConfig(({ mode }) => {
         alias: {
           '@': path.resolve(__dirname, '.'),
         }
-      }
+      },
+      // Forçar o Vite a usar uma única instância do React para evitar o erro 'reading useState'
+      optimizeDeps: {
+        include: ['react', 'react-dom'],
+      },
     };
 });
