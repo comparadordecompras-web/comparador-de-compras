@@ -4,7 +4,7 @@ import { SUPERMARKETS, UNITS, CATEGORIES } from '../constants';
 import { Scan } from 'lucide-react';
 import BarcodeScannerModal from './BarcodeScannerModal';
 import { useProducts } from '../hooks/useProducts'; // Use the new hook
-import { showSuccess, showError, showLoading } from '../utils/toast';
+import { showSuccess, showError, showLoading, dismissToast } from '../utils/toast';
 
 interface AddItemFormProps {
   onAddItem: (item: Omit<ShoppingItem, 'id'>) => void;
@@ -48,34 +48,37 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onAddItem, onBarcodeNotFound 
       const product = await findProductByBarcode(decodedText);
 
       if (product) {
-        // Product found: pre-fill form
-        setName(product.name);
-        setQuantity(1); // Always reset quantity to 1 for a new item
-        setUnit(product.unit);
-        setCategory(product.category);
-        setBarcode(decodedText);
-        
-        // Convert prices back to string format for input fields
-        setPrices({
-          iquegami: product.prices.iquegami > 0 ? String(product.prices.iquegami) : '',
-          proenca: product.prices.proenca > 0 ? String(product.prices.proenca) : '',
-          max: product.prices.max > 0 ? String(product.prices.max) : '',
+        // Product found: automatically add to the list
+        onAddItem({
+          name: product.name,
+          quantity: 1, // Default quantity when scanning
+          unit: product.unit,
+          category: product.category,
+          prices: product.prices,
+          barcode: product.barcode,
         });
         
-        showSuccess(`Produto "${product.name}" encontrado e preenchido!`, toastId);
+        dismissToast(toastId);
+        showSuccess(`Produto "${product.name}" adicionado à lista!`);
+        
+        // Reset form for the next scan/manual entry
+        resetForm();
+        
       } else {
         // Product not found: redirect to registration page
-        showError('Produto não encontrado. Redirecionando para cadastro...', toastId);
+        dismissToast(toastId);
+        showError('Produto não encontrado. Redirecionando para cadastro...');
         
         // Wait a moment before redirecting to allow the toast to show
         await new Promise(resolve => setTimeout(resolve, 500));
         onBarcodeNotFound(decodedText);
       }
     } catch (e) {
-      showError('Erro ao buscar produto.', toastId);
+      dismissToast(toastId);
+      showError('Erro ao buscar produto.');
       console.error(e);
     }
-  }, [findProductByBarcode, onBarcodeNotFound]);
+  }, [findProductByBarcode, onBarcodeNotFound, onAddItem, resetForm]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
