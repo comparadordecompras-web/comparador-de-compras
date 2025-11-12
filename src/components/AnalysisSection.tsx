@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
 import { ShoppingItem, Supermarket } from '../types';
 import { SUPERMARKETS, CATEGORIES } from '../constants';
-import { DollarSign, ShoppingBag, TrendingUp } from 'lucide-react';
+import { DollarSign, ShoppingBag, TrendingUp, PieChart } from 'lucide-react';
+import CategoryDistributionChart from './CategoryDistributionChart';
 
 interface AnalysisSectionProps {
   items: ShoppingItem[];
@@ -130,11 +131,24 @@ const AnalysisSection: React.FC<AnalysisSectionProps> = ({ items }) => {
         </div>
       </div>
 
-      {/* Category Breakdown */}
+      {/* Category Distribution Chart */}
+      <div className="bg-white p-6 rounded-lg shadow-md">
+        <h3 className="text-xl font-bold mb-4 text-brand-dark flex items-center">
+          <PieChart className="w-5 h-5 mr-2 text-brand-secondary" />
+          Distribuição de Gastos por Categoria
+        </h3>
+        <p className="text-sm text-gray-500 mb-4">Percentual do custo otimizado total gasto em cada categoria.</p>
+        <CategoryDistributionChart 
+          categoryTotals={categoryTotals} 
+          totalOptimized={totalOptimized} 
+        />
+      </div>
+      
+      {/* Category Breakdown (Savings Comparison) */}
       <div className="bg-white p-6 rounded-lg shadow-md">
         <h3 className="text-xl font-bold mb-4 text-brand-dark flex items-center">
           <DollarSign className="w-5 h-5 mr-2 text-brand-secondary" />
-          Gastos por Categoria
+          Comparativo de Economia por Categoria
         </h3>
         <p className="text-sm text-gray-500 mb-4">Comparação entre o custo otimizado e o custo máximo por categoria.</p>
         <div className="space-y-4">
