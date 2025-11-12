@@ -11,6 +11,7 @@ import MapSection from './src/components/MapSection';
 import SortControl from './src/components/SortControl';
 import AnalysisSection from './src/components/AnalysisSection';
 import Login from './src/pages/Login';
+import About from './src/pages/About'; // Importando o novo componente About
 import { SUPERMARKETS } from './src/constants';
 import { supabase } from './src/integrations/supabase/client';
 import { showError } from './src/utils/toast';
@@ -118,13 +119,7 @@ const AppContent: React.FC = () => {
     }
     
     if (currentView === 'about') {
-        return (
-            <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-md">
-                <h2 className="text-2xl font-bold mb-4 text-brand-dark">Sobre o Comparador de Compras Olímpia</h2>
-                <p className="text-gray-700">Este aplicativo foi desenvolvido para ajudar os moradores de Olímpia-SP a economizar em suas compras mensais, comparando os preços dos principais supermercados da cidade (Iquegami, Proença e Max Atacadista).</p>
-                <p className="mt-4 text-gray-700">Adicione seus itens, insira os preços unitários que você encontrou e veja instantaneamente qual é o custo total em cada mercado e qual seria o custo otimizado se você comprasse cada item no local mais barato.</p>
-            </div>
-        );
+        return <About />; // Usando o componente About dedicado
     }
 
     // Default view: 'list'
