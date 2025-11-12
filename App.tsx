@@ -7,7 +7,6 @@ import AddItemForm from './src/components/AddItemForm';
 import ShoppingList from './src/components/ShoppingList';
 import Totals from './src/components/Totals';
 import Actions from './src/components/Actions';
-import MapSection from './src/components/MapSection';
 import SortControl from './src/components/SortControl';
 import AnalysisSection from './src/components/AnalysisSection';
 import Login from './src/pages/Login';
@@ -168,7 +167,6 @@ const AppContent: React.FC = () => {
                 <AddItemForm onAddItem={handleAddItem} />
                 {items.length > 0 && <Totals totals={totals} />}
                 <Actions items={items} onClearList={handleClearList} />
-                <MapSection />
               </>
             )}
             {currentView !== 'list' && (
