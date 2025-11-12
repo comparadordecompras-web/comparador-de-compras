@@ -11,7 +11,7 @@ interface ShoppingListProps {
 
 const ShoppingList: React.FC<ShoppingListProps> = ({ items, onRemoveItem, onUpdateItem }) => {
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden">
+    <div id="shopping-list-container" className="bg-white rounded-lg shadow-md overflow-hidden">
       <div className="p-6">
         <h2 className="text-xl font-bold text-brand-dark">Sua Lista de Compras</h2>
       </div>
