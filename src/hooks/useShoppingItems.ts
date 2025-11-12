@@ -1,0 +1,145 @@
+import { useState, useEffect, useCallback } from 'react';
+import { ShoppingItem, Supermarket } from '../types';
+import { supabase } from '../integrations/supabase/client';
+import { useSession } from '../components/SessionContextProvider';
+
+interface UseShoppingItemsResult {
+  items: ShoppingItem[];
+  isLoading: boolean;
+  addItem: (item: Omit<ShoppingItem, 'id'>) => Promise<void>;
+  updateItem: (item: ShoppingItem) => Promise<void>;
+  removeItem: (id: string) => Promise<void>;
+  clearList: () => Promise<void>;
+}
+
+export function useShoppingItems(): UseShoppingItemsResult {
+  const { user, isLoading: isSessionLoading } = useSession();
+  const [items, setItems] = useState<ShoppingItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchItems = useCallback(async () => {
+    if (!user) {
+      setItems([]);
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+    const { data, error } = await supabase
+      .from('shopping_items')
+      .select('*')
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching items:', error);
+      // In a real app, we'd use toast here
+    } else {
+      // Map database structure back to ShoppingItem interface
+      const fetchedItems: ShoppingItem[] = data.map(dbItem => ({
+        id: dbItem.id,
+        name: dbItem.name,
+        quantity: parseFloat(dbItem.quantity),
+        unit: dbItem.unit,
+        category: dbItem.category,
+        prices: dbItem.prices as Record<Supermarket, number>, // Cast JSONB back to type
+      }));
+      setItems(fetchedItems);
+    }
+    setIsLoading(false);
+  }, [user]);
+
+  useEffect(() => {
+    if (!isSessionLoading) {
+      fetchItems();
+    }
+  }, [isSessionLoading, fetchItems]);
+
+  const addItem = useCallback(async (item: Omit<ShoppingItem, 'id'>) => {
+    if (!user) return;
+
+    const newItem = {
+      user_id: user.id,
+      name: item.name,
+      quantity: item.quantity,
+      unit: item.unit,
+      category: item.category,
+      prices: item.prices,
+    };
+
+    const { data, error } = await supabase
+      .from('shopping_items')
+      .insert(newItem)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error adding item:', error);
+    } else if (data) {
+      const addedItem: ShoppingItem = {
+        id: data.id,
+        name: data.name,
+        quantity: parseFloat(data.quantity),
+        unit: data.unit,
+        category: data.category,
+        prices: data.prices as Record<Supermarket, number>,
+      };
+      setItems(prev => [...prev, addedItem]);
+    }
+  }, [user]);
+
+  const updateItem = useCallback(async (item: ShoppingItem) => {
+    if (!user) return;
+
+    const { error } = await supabase
+      .from('shopping_items')
+      .update({
+        name: item.name,
+        quantity: item.quantity,
+        unit: item.unit,
+        category: item.category,
+        prices: item.prices,
+      })
+      .eq('id', item.id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error updating item:', error);
+    } else {
+      setItems(prev => prev.map(i => (i.id === item.id ? item : i)));
+    }
+  }, [user]);
+
+  const removeItem = useCallback(async (id: string) => {
+    if (!user) return;
+
+    const { error } = await supabase
+      .from('shopping_items')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Error removing item:', error);
+    } else {
+      setItems(prev => prev.filter(i => i.id !== id));
+    }
+  }, [user]);
+
+  const clearList = useCallback(async () => {
+    if (!user) return;
+
+    // Delete all items belonging to the current user (RLS handles the filtering)
+    const { error } = await supabase
+      .from('shopping_items')
+      .delete()
+      .eq('user_id', user.id); 
+
+    if (error) {
+      console.error('Error clearing list:', error);
+    } else {
+      setItems([]);
+    }
+  }, [user]);
+
+  return { items, isLoading, addItem, updateItem, removeItem, clearList };
+}
