@@ -1,33 +1,81 @@
-import React, { useState } from 'react';
-import { ShoppingItem, Unit } from '../types';
+import React, { useState, useCallback } from 'react';
+import { ShoppingItem, Unit, Supermarket } from '../types';
 import { SUPERMARKETS, UNITS, CATEGORIES } from '../constants';
 import { Scan } from 'lucide-react';
 import BarcodeScannerModal from './BarcodeScannerModal';
+import { useShoppingItems } from '../hooks/useShoppingItems';
+import { showSuccess, showError } from '../utils/toast';
 
 interface AddItemFormProps {
   onAddItem: (item: Omit<ShoppingItem, 'id'>) => void;
 }
 
 const AddItemForm: React.FC<AddItemFormProps> = ({ onAddItem }) => {
+  const { findProductByBarcode } = useShoppingItems();
+  
   const [name, setName] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [unit, setUnit] = useState<Unit>('un');
   const [category, setCategory] = useState(CATEGORIES[0]);
   const [prices, setPrices] = useState({ iquegami: '', proenca: '', max: '' });
+  const [barcode, setBarcode] = useState<string | undefined>(undefined);
   const [error, setError] = useState('');
   const [isScannerOpen, setIsScannerOpen] = useState(false);
+
+  const resetForm = useCallback(() => {
+    setName('');
+    setQuantity(1);
+    setUnit('un');
+    setCategory(CATEGORIES[0]);
+    setPrices({ iquegami: '', proenca: '', max: '' });
+    setBarcode(undefined);
+    setError('');
+  }, []);
 
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setPrices(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleScanSuccess = (decodedText: string) => {
-    // Use o código de barras como o nome do item temporariamente
-    // O usuário pode renomear depois, mas isso preenche o campo rapidamente.
-    setName(`Cód: ${decodedText}`);
+  const handleScanSuccess = useCallback(async (decodedText: string) => {
+    setIsScannerOpen(false);
     setError('');
-  };
+    
+    const toastId = showSuccess('Buscando produto cadastrado...');
+
+    try {
+      const product = await findProductByBarcode(decodedText);
+
+      if (product) {
+        // Product found: pre-fill form
+        setName(product.name);
+        setQuantity(1); // Always reset quantity to 1 for a new item
+        setUnit(product.unit);
+        setCategory(product.category);
+        setBarcode(decodedText);
+        
+        // Convert prices back to string format for input fields
+        setPrices({
+          iquegami: product.prices.iquegami > 0 ? String(product.prices.iquegami) : '',
+          proenca: product.prices.proenca > 0 ? String(product.prices.proenca) : '',
+          max: product.prices.max > 0 ? String(product.prices.max) : '',
+        });
+        
+        showSuccess(`Produto "${product.name}" encontrado e preenchido!`);
+      } else {
+        // Product not found: set barcode and prompt user to fill details
+        setName(`Cód: ${decodedText}`);
+        setBarcode(decodedText);
+        showSuccess('Código de barras capturado. Preencha os detalhes do produto.');
+      }
+    } catch (e) {
+      showError('Erro ao buscar produto.');
+      console.error(e);
+    } finally {
+      // Dismiss the initial loading toast if it was used, though we used showSuccess above.
+      // If we were using a loading toast: dismissToast(toastId);
+    }
+  }, [findProductByBarcode]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,14 +100,11 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onAddItem }) => {
         proenca: parseFloat(prices.proenca) || 0,
         max: parseFloat(prices.max) || 0,
       },
+      barcode, // Include barcode in the item being added
     });
 
     // Reset form
-    setName('');
-    setQuantity(1);
-    setUnit('un');
-    setCategory(CATEGORIES[0]);
-    setPrices({ iquegami: '', proenca: '', max: '' });
+    resetForm();
   };
 
   return (
@@ -90,6 +135,12 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onAddItem }) => {
                 <Scan className="w-5 h-5" />
               </button>
             </div>
+            {barcode && (
+              <p className="text-xs text-gray-500 mt-1">
+                Código de Barras: {barcode} 
+                <button type="button" onClick={() => setBarcode(undefined)} className="ml-2 text-red-500 hover:text-red-700">(Limpar)</button>
+              </p>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">

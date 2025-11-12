@@ -9,6 +9,7 @@ export interface ShoppingItem {
   unit: Unit;
   category: string;
   prices: Record<Supermarket, number>;
+  barcode?: string; // Novo campo
 }
 
 export interface ProductData {
@@ -16,6 +17,7 @@ export interface ProductData {
   unit: Unit;
   category: string;
   prices: Record<Supermarket, number>;
+  barcode?: string; // Novo campo
 }
 
 export type AppView = 'list' | 'analysis' | 'about' | 'saved_lists';
