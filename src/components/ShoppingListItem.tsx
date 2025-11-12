@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { ShoppingItem, Supermarket, Unit } from '../types';
-import { SUPERMARKETS, UNITS } from '../constants';
+import { SUPERMARKETS, UNITS, CATEGORIES } from '../constants';
 import { TrashIcon } from './icons/TrashIcon';
 
 interface ShoppingListItemProps {
@@ -76,6 +76,10 @@ const ShoppingListItem: React.FC<ShoppingListItemProps> = ({ item, onRemove, onU
   const handleUnitChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     onUpdate({ ...item, unit: e.target.value as Unit });
   };
+  
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    onUpdate({ ...item, category: e.target.value });
+  };
 
   return (
     <tr className="hover:bg-gray-50">
@@ -111,7 +115,20 @@ const ShoppingListItem: React.FC<ShoppingListItemProps> = ({ item, onRemove, onU
             ))}
           </select>
         </div>
-        <div className="text-xs text-gray-400 italic mt-1">{item.category}</div>
+        
+        {/* Categoria (Editável) */}
+        <div className="mt-1">
+            <select
+                value={item.category}
+                onChange={handleCategoryChange}
+                className="text-xs text-gray-600 italic p-1 border border-gray-200 rounded-md focus:border-brand-primary focus:ring-brand-primary focus:ring-1 bg-white w-full max-w-xs"
+                aria-label={`Editar categoria de ${item.name}`}
+            >
+                {CATEGORIES.map((cat) => (
+                    <option key={cat} value={cat}>{cat}</option>
+                ))}
+            </select>
+        </div>
       </td>
 
       {Object.keys(SUPERMARKETS).map(marketKey => (
