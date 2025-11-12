@@ -1,23 +1,32 @@
 import React from 'react';
 import { ListChecks, BarChart3, Info } from 'lucide-react';
+import { AppView } from '../types';
+
+interface HeaderProps {
+  currentView: AppView;
+  onViewChange: (view: AppView) => void;
+}
 
 // Componente auxiliar para links de navegação
-const NavLink: React.FC<{ icon: React.ReactNode, label: string, active: boolean }> = ({ icon, label, active }) => (
+const NavLink: React.FC<{ icon: React.ReactNode, label: string, view: AppView, currentView: AppView, onClick: (view: AppView) => void }> = ({ icon, label, view, currentView, onClick }) => (
   <a
     href="#"
     className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
-      active
+      currentView === view
         ? 'bg-blue-700 text-white'
         : 'text-blue-200 hover:bg-blue-600 hover:text-white'
     }`}
-    onClick={(e) => e.preventDefault()} // Mantém o foco na página atual
+    onClick={(e) => {
+      e.preventDefault();
+      onClick(view);
+    }}
   >
     {icon}
     <span>{label}</span>
   </a>
 );
 
-const Header: React.FC = () => {
+const Header: React.FC<HeaderProps> = ({ currentView, onViewChange }) => {
   return (
     <header className="bg-brand-primary shadow-md">
       <div className="container mx-auto px-4 md:px-8 py-4">
@@ -38,17 +47,23 @@ const Header: React.FC = () => {
             <NavLink 
               icon={<ListChecks className="w-5 h-5" />} 
               label="Lista de Compras" 
-              active={true} 
+              view="list"
+              currentView={currentView}
+              onClick={onViewChange}
             />
             <NavLink 
               icon={<BarChart3 className="w-5 h-5" />} 
-              label="Análise (Em Breve)" 
-              active={false} 
+              label="Análise" 
+              view="analysis"
+              currentView={currentView}
+              onClick={onViewChange}
             />
             <NavLink 
               icon={<Info className="w-5 h-5" />} 
               label="Sobre (Em Breve)" 
-              active={false} 
+              view="about"
+              currentView={currentView}
+              onClick={onViewChange}
             />
           </div>
         </nav>

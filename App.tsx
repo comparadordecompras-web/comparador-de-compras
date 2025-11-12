@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { ShoppingItem, Supermarket, SortKey, SortDirection } from './types';
+import { ShoppingItem, Supermarket, SortKey, SortDirection, AppView } from './types';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import Header from './components/Header';
 import AddItemForm from './components/AddItemForm';
@@ -8,12 +8,14 @@ import Totals from './components/Totals';
 import Actions from './components/Actions';
 import MapSection from './components/MapSection';
 import SortControl from './components/SortControl';
+import AnalysisSection from './components/AnalysisSection';
 import { SUPERMARKETS } from './constants';
 
 const App: React.FC = () => {
   const [items, setItems] = useLocalStorage<ShoppingItem[]>('shoppingList', []);
   const [sortKey, setSortKey] = useState<SortKey>('none');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+  const [currentView, setCurrentView] = useState<AppView>('list');
 
   const handleAddItem = useCallback((item: Omit<ShoppingItem, 'id'>) => {
     setItems(prevItems => [...prevItems, { ...item, id: crypto.randomUUID() }]);
@@ -87,38 +89,70 @@ const App: React.FC = () => {
     return { ...marketTotals, optimized: optimizedTotal };
   }, [items]);
 
+  const renderMainContent = () => {
+    if (currentView === 'analysis') {
+      return <AnalysisSection items={items} />;
+    }
+    
+    if (currentView === 'about') {
+        return (
+            <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-md">
+                <h2 className="text-2xl font-bold mb-4 text-brand-dark">Sobre o Comparador de Compras Olímpia</h2>
+                <p className="text-gray-700">Este aplicativo foi desenvolvido para ajudar os moradores de Olímpia-SP a economizar em suas compras mensais, comparando os preços dos principais supermercados da cidade (Iquegami, Proença e Max Atacadista).</p>
+                <p className="mt-4 text-gray-700">Adicione seus itens, insira os preços unitários que você encontrou e veja instantaneamente qual é o custo total em cada mercado e qual seria o custo otimizado se você comprasse cada item no local mais barato.</p>
+            </div>
+        );
+    }
+
+    // Default view: 'list'
+    return (
+      <>
+        {items.length > 0 && (
+            <div className="mb-4">
+                <SortControl 
+                    sortKey={sortKey} 
+                    sortDirection={sortDirection} 
+                    onSortChange={handleSortChange} 
+                />
+            </div>
+        )}
+        <ShoppingList 
+          items={sortedItems} 
+          onRemoveItem={handleRemoveItem}
+          onUpdateItem={handleUpdateItem} 
+        />
+         {items.length === 0 && (
+            <div className="text-center py-16 px-6 bg-white rounded-lg shadow-md">
+                <p className="text-gray-500">Sua lista de compras está vazia.</p>
+                <p className="text-gray-400 mt-2">Use o formulário para adicionar seu primeiro item!</p>
+            </div>
+        )}
+      </>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 text-brand-dark">
-      <Header />
+      <Header currentView={currentView} onViewChange={setCurrentView} />
       <main className="container mx-auto p-4 md:p-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
-            {items.length > 0 && (
-                <div className="mb-4">
-                    <SortControl 
-                        sortKey={sortKey} 
-                        sortDirection={sortDirection} 
-                        onSortChange={handleSortChange} 
-                    />
-                </div>
-            )}
-            <ShoppingList 
-              items={sortedItems} 
-              onRemoveItem={handleRemoveItem}
-              onUpdateItem={handleUpdateItem} 
-            />
-             {items.length === 0 && (
-                <div className="text-center py-16 px-6 bg-white rounded-lg shadow-md">
-                    <p className="text-gray-500">Sua lista de compras está vazia.</p>
-                    <p className="text-gray-400 mt-2">Use o formulário para adicionar seu primeiro item!</p>
-                </div>
-            )}
+            {renderMainContent()}
           </div>
           <div className="space-y-8">
-            <AddItemForm onAddItem={handleAddItem} />
-            {items.length > 0 && <Totals totals={totals} />}
-            <Actions items={items} onClearList={handleClearList} />
-            <MapSection />
+            {currentView === 'list' && (
+              <>
+                <AddItemForm onAddItem={handleAddItem} />
+                {items.length > 0 && <Totals totals={totals} />}
+                <Actions items={items} onClearList={handleClearList} />
+                <MapSection />
+              </>
+            )}
+            {currentView !== 'list' && (
+              <div className="bg-white p-6 rounded-lg shadow-md text-center text-gray-500">
+                <p>Os painéis de Ações e Totais estão disponíveis apenas na visualização "Lista de Compras".</p>
+              </div>
+            )}
           </div>
         </div>
       </main>

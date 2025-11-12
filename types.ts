@@ -14,3 +14,6 @@ export interface ShoppingItem {
 // New types for sorting
 export type SortKey = 'name' | 'category' | 'none';
 export type SortDirection = 'asc' | 'desc';
+
+// New type for navigation
+export type AppView = 'list' | 'analysis' | 'about';
