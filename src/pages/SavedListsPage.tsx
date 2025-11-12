@@ -1,6 +1,16 @@
-import React, { useMemo } from 'react';
+import React, { useState } from 'react';
 import { useMonthlyLists } from '../hooks/useMonthlyLists';
-import { ListChecks, Calendar, DollarSign, Trash2 } from 'lucide-react';
+import { ListChecks, Calendar, DollarSign, Trash2, Eye } from 'lucide-react';
+import ListDetailsModal from '../components/ListDetailsModal';
+import { ShoppingItem } from '../types';
+
+interface MonthlyList {
+  id: string;
+  name: string;
+  total_optimized: number;
+  items: ShoppingItem[];
+  created_at: string;
+}
 
 const formatCurrency = (value: number) => {
   return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -8,6 +18,7 @@ const formatCurrency = (value: number) => {
 
 const SavedListsPage: React.FC = () => {
   const { savedLists, isLoading } = useMonthlyLists();
+  const [selectedList, setSelectedList] = useState<MonthlyList | null>(null);
 
   if (isLoading) {
     return (
@@ -69,7 +80,6 @@ const SavedListsPage: React.FC = () => {
             </div>
 
             <div className="mt-4 flex justify-end space-x-3">
-              {/* TODO: Implementar funcionalidade de carregar lista e deletar */}
               <button
                 className="text-sm text-red-600 hover:text-red-800 flex items-center transition-colors"
                 onClick={() => alert('Funcionalidade de exclusão em breve.')}
@@ -78,15 +88,21 @@ const SavedListsPage: React.FC = () => {
                 Excluir
               </button>
               <button
-                className="text-sm bg-brand-secondary text-white px-3 py-1 rounded-md hover:bg-green-600 transition-colors"
-                onClick={() => alert('Funcionalidade de carregar lista em breve.')}
+                className="text-sm bg-brand-secondary text-white px-3 py-1 rounded-md hover:bg-green-600 transition-colors flex items-center"
+                onClick={() => setSelectedList(list)}
               >
+                <Eye className="w-4 h-4 mr-1" />
                 Ver Detalhes
               </button>
             </div>
           </div>
         ))}
       </div>
+      
+      <ListDetailsModal 
+        list={selectedList} 
+        onClose={() => setSelectedList(null)} 
+      />
     </div>
   );
 };
