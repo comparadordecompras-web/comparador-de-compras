@@ -3,16 +3,16 @@ import { ShoppingItem, Unit, Supermarket } from '../types';
 import { SUPERMARKETS, UNITS, CATEGORIES } from '../constants';
 import { Scan } from 'lucide-react';
 import BarcodeScannerModal from './BarcodeScannerModal';
-import { useShoppingItems } from '../hooks/useShoppingItems';
-import { showSuccess, showError, showLoading } from '../utils/toast'; // Added showLoading
+import { useProducts } from '../hooks/useProducts'; // Use the new hook
+import { showSuccess, showError, showLoading } from '../utils/toast';
 
 interface AddItemFormProps {
   onAddItem: (item: Omit<ShoppingItem, 'id'>) => void;
-  onBarcodeNotFound: (barcode: string) => void; // New prop
+  onBarcodeNotFound: (barcode: string) => void;
 }
 
 const AddItemForm: React.FC<AddItemFormProps> = ({ onAddItem, onBarcodeNotFound }) => {
-  const { findProductByBarcode } = useShoppingItems();
+  const { findProductByBarcode } = useProducts(); // Use findProductByBarcode from useProducts
   
   const [name, setName] = useState('');
   const [quantity, setQuantity] = useState(1);
@@ -42,7 +42,6 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onAddItem, onBarcodeNotFound 
     setIsScannerOpen(false);
     setError('');
     
-    // Use showLoading to get a toast ID that we can update later
     const toastId = showLoading('Buscando produto cadastrado...');
 
     try {
@@ -63,11 +62,9 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onAddItem, onBarcodeNotFound 
           max: product.prices.max > 0 ? String(product.prices.max) : '',
         });
         
-        // Replace loading toast with success toast
         showSuccess(`Produto "${product.name}" encontrado e preenchido!`, toastId);
       } else {
         // Product not found: redirect to registration page
-        // Show error message and wait briefly before redirecting
         showError('Produto não encontrado. Redirecionando para cadastro...', toastId);
         
         // Wait a moment before redirecting to allow the toast to show
@@ -75,7 +72,6 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onAddItem, onBarcodeNotFound 
         onBarcodeNotFound(decodedText);
       }
     } catch (e) {
-      // Replace loading toast with error toast
       showError('Erro ao buscar produto.', toastId);
       console.error(e);
     }

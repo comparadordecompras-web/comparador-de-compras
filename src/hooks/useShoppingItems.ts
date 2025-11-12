@@ -12,7 +12,6 @@ interface UseShoppingItemsResult {
   updateItem: (item: ShoppingItem) => Promise<void>;
   removeItem: (id: string) => Promise<void>;
   clearList: () => Promise<void>;
-  findProductByBarcode: (barcode: string) => Promise<Omit<ShoppingItem, 'id'> | null>;
 }
 
 export function useShoppingItems(): UseShoppingItemsResult {
@@ -190,39 +189,6 @@ export function useShoppingItems(): UseShoppingItemsResult {
       showSuccess('Lista limpa com sucesso!');
     }
   }, [user]);
-  
-  // New function to find a previously saved product by barcode
-  const findProductByBarcode = useCallback(async (barcode: string): Promise<Omit<ShoppingItem, 'id'> | null> => {
-    if (!user) return null;
 
-    // Search for the most recently added item with this barcode
-    const { data, error } = await supabase
-      .from('shopping_items')
-      .select('name, unit, category, prices, barcode')
-      .eq('barcode', barcode)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .single();
-
-    if (error && error.code !== 'PGRST116') { // PGRST116 means "No rows found"
-      console.error('Error searching product by barcode:', error);
-      return null;
-    }
-
-    if (data) {
-      // Return the product data, excluding the ID
-      return {
-        name: data.name,
-        quantity: 1, // Default quantity to 1 when importing
-        unit: data.unit,
-        category: data.category,
-        prices: data.prices as Record<Supermarket, number>,
-        barcode: data.barcode,
-      };
-    }
-
-    return null;
-  }, [user]);
-
-  return { items, isLoading, addItem, addItemsBatch, updateItem, removeItem, clearList, findProductByBarcode };
+  return { items, isLoading, addItem, addItemsBatch, updateItem, removeItem, clearList };
 }

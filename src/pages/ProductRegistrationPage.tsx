@@ -3,6 +3,7 @@ import { ShoppingItem, Unit, Supermarket } from '../types';
 import { SUPERMARKETS, UNITS, CATEGORIES } from '../constants';
 import { Barcode, Save, X } from 'lucide-react';
 import { showSuccess, showError } from '../utils/toast';
+import { useProducts } from '../hooks/useProducts';
 
 interface ProductRegistrationPageProps {
   onAddItem: (item: Omit<ShoppingItem, 'id'>) => void;
@@ -11,6 +12,8 @@ interface ProductRegistrationPageProps {
 }
 
 const ProductRegistrationPage: React.FC<ProductRegistrationPageProps> = ({ onAddItem, onCancel, initialBarcode }) => {
+  const { addProduct } = useProducts();
+  
   const [name, setName] = useState('');
   const [unit, setUnit] = useState<Unit>('un');
   const [category, setCategory] = useState(CATEGORIES[0]);
@@ -18,21 +21,12 @@ const ProductRegistrationPage: React.FC<ProductRegistrationPageProps> = ({ onAdd
   const [barcode, setBarcode] = useState<string | undefined>(initialBarcode);
   const [error, setError] = useState('');
 
-  const resetForm = useCallback(() => {
-    setName('');
-    setUnit('un');
-    setCategory(CATEGORIES[0]);
-    setPrices({ iquegami: '', proenca: '', max: '' });
-    setBarcode(undefined);
-    setError('');
-  }, []);
-
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setPrices(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
       setError('O nome do item é obrigatório.');
@@ -45,10 +39,9 @@ const ProductRegistrationPage: React.FC<ProductRegistrationPageProps> = ({ onAdd
     
     setError('');
 
-    // When registering a product, we add it to the list with quantity 1
-    onAddItem({
+    const productData = {
+      barcode,
       name,
-      quantity: 1, // Default quantity for registration
       unit,
       category,
       prices: {
@@ -56,11 +49,26 @@ const ProductRegistrationPage: React.FC<ProductRegistrationPageProps> = ({ onAdd
         proenca: parseFloat(prices.proenca) || 0,
         max: parseFloat(prices.max) || 0,
       },
-      barcode,
-    });
+    };
 
-    showSuccess(`Produto "${name}" cadastrado e adicionado à lista!`);
-    onCancel(); // Go back to the list view
+    // 1. Save product to the catalog (products table)
+    const savedProduct = await addProduct(productData);
+
+    if (savedProduct) {
+        // 2. Add the item to the current shopping list (shopping_items table)
+        onAddItem({
+            name: savedProduct.name,
+            quantity: 1, // Default quantity for registration
+            unit: savedProduct.unit,
+            category: savedProduct.category,
+            prices: savedProduct.prices,
+            barcode: savedProduct.barcode,
+        });
+        
+        // Success message is handled inside addProduct, just navigate back
+        onCancel(); // Go back to the list view
+    }
+    // If savedProduct is null, addProduct already showed an error (e.g., barcode conflict)
   };
 
   return (
