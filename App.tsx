@@ -12,6 +12,7 @@ import AnalysisSection from './src/components/AnalysisSection';
 import Login from './src/pages/Login';
 import About from './src/pages/About';
 import SavedListsPage from './src/pages/SavedListsPage';
+import LandingPage from './src/pages/LandingPage';
 import { SUPERMARKETS } from './src/constants';
 import { supabase } from './src/integrations/supabase/client';
 import { showError, showSuccess } from './src/utils/toast';
@@ -204,6 +205,7 @@ const AppContent: React.FC = () => {
 // --- Root Component with Auth Gate ---
 const App: React.FC = () => {
   const { session, isLoading } = useSession();
+  const [isViewingLogin, setIsViewingLogin] = useState(false);
 
   if (isLoading) {
     return (
@@ -213,11 +215,17 @@ const App: React.FC = () => {
     );
   }
 
-  if (!session) {
+  if (session) {
+    return <AppContent />;
+  }
+  
+  // If not logged in, show LandingPage first.
+  if (isViewingLogin) {
     return <Login />;
   }
 
-  return <AppContent />;
+  // We need to pass a way for LandingPage to trigger the switch to Login
+  return <LandingPage onStart={() => setIsViewingLogin(true)} />;
 };
 
 // --- Root Wrapper ---
