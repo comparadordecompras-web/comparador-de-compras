@@ -2,8 +2,8 @@ import React, { useState, useCallback } from 'react';
 import { useProducts } from '../hooks/useProducts';
 import { Product, Supermarket, Unit } from '../types';
 import { SUPERMARKETS, UNITS, CATEGORIES } from '../constants';
-import { Package, Edit, Trash2, Save, X, Barcode } from 'lucide-react';
-import { showError } from '../utils/toast';
+import { Package, Edit, Trash2, Save, X, Barcode, Plus } from 'lucide-react';
+import ProductFormModal from '../components/ProductFormModal';
 
 const formatCurrency = (value: number) => {
   return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -116,6 +116,7 @@ const EditableProductRow: React.FC<EditableProductRowProps> = ({ product, onSave
 const ProductCatalogPage: React.FC = () => {
   const { products, isLoading, updateProduct, removeProduct, fetchProducts } = useProducts();
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleRemove = useCallback((id: string, name: string) => {
     if (window.confirm(`Tem certeza que deseja excluir o produto "${name}" do catálogo?`)) {
@@ -127,6 +128,12 @@ const ProductCatalogPage: React.FC = () => {
     updateProduct(product);
     setEditingId(null);
   }, [updateProduct]);
+  
+  const handleProductAdded = useCallback((newProduct: Product) => {
+    // Since useProducts already updates the state internally, we just need to close the modal.
+    // If we needed to force a refresh, we could call fetchProducts(), but the hook handles it.
+    setIsModalOpen(false);
+  }, []);
 
   if (isLoading) {
     return (
@@ -138,10 +145,20 @@ const ProductCatalogPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-3xl font-bold text-brand-dark flex items-center">
-        <Package className="w-7 h-7 mr-3 text-brand-primary" />
-        Catálogo de Produtos ({products.length})
-      </h2>
+      <div className="flex justify-between items-center">
+        <h2 className="text-3xl font-bold text-brand-dark flex items-center">
+          <Package className="w-7 h-7 mr-3 text-brand-primary" />
+          Catálogo de Produtos ({products.length})
+        </h2>
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="flex items-center space-x-2 px-4 py-2 rounded-md text-sm font-medium bg-brand-secondary text-white hover:bg-green-600 transition-colors shadow-md"
+        >
+          <Plus className="w-5 h-5" />
+          <span>Novo Produto</span>
+        </button>
+      </div>
+      
       <p className="text-gray-600">Gerencie os produtos cadastrados via código de barras. Você pode editar preços, nomes e categorias para manter o catálogo atualizado.</p>
 
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
@@ -166,7 +183,7 @@ const ProductCatalogPage: React.FC = () => {
               {products.length === 0 ? (
                 <tr>
                   <td colSpan={Object.keys(SUPERMARKETS).length + 2} className="px-4 py-8 text-center text-gray-500">
-                    Nenhum produto cadastrado no catálogo. Use o scanner na Lista de Compras para adicionar novos itens.
+                    Nenhum produto cadastrado no catálogo. Use o botão "Novo Produto" ou o scanner na Lista de Compras para adicionar itens.
                   </td>
                 </tr>
               ) : (
@@ -222,6 +239,12 @@ const ProductCatalogPage: React.FC = () => {
           </table>
         </div>
       </div>
+      
+      <ProductFormModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onProductAdded={handleProductAdded}
+      />
     </div>
   );
 };
