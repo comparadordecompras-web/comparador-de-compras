@@ -13,6 +13,7 @@ import Login from './src/pages/Login';
 import About from './src/pages/About';
 import SavedListsPage from './src/pages/SavedListsPage';
 import LandingPage from './src/pages/LandingPage';
+import ProductRegistrationPage from './src/pages/ProductRegistrationPage'; // Import new page
 import { SUPERMARKETS } from './src/constants';
 import { supabase } from './src/integrations/supabase/client';
 import { showError, showSuccess } from './src/utils/toast';
@@ -24,6 +25,7 @@ const AppContent: React.FC = () => {
   const [sortKey, setSortKey] = useState<SortKey>('none');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [currentView, setCurrentView] = useState<AppView>('list');
+  const [barcodeToRegister, setBarcodeToRegister] = useState<string | undefined>(undefined); // State to hold barcode for registration
 
   const handleLogout = useCallback(async () => {
     const { error } = await supabase.auth.signOut();
@@ -32,9 +34,27 @@ const AppContent: React.FC = () => {
     }
   }, []);
 
+  // Modified handleAddItem to handle the flow from AddItemForm
   const handleAddItem = useCallback((item: Omit<ShoppingItem, 'id'>) => {
+    // If a barcode is present but the product is new (not found via findProductByBarcode),
+    // we should ideally redirect to the registration page.
+    // However, since the AddItemForm already handles the logic of adding the item
+    // (and thus registering the barcode for future use), we just call addItem directly.
+    // The registration page is for when the product is *not* found.
     addItem(item);
   }, [addItem]);
+  
+  // New handler for when a product is not found via barcode scan
+  const handleBarcodeNotFound = useCallback((barcode: string) => {
+    setBarcodeToRegister(barcode);
+    setCurrentView('product_registration');
+  }, []);
+  
+  // Handler to return to list view after registration or cancellation
+  const handleRegistrationCancel = useCallback(() => {
+    setBarcodeToRegister(undefined);
+    setCurrentView('list');
+  }, []);
 
   const handleRemoveItem = useCallback((id: string) => {
     removeItem(id);
@@ -122,6 +142,16 @@ const AppContent: React.FC = () => {
             </div>
         );
     }
+    
+    if (currentView === 'product_registration') {
+        return (
+            <ProductRegistrationPage 
+                onAddItem={addItem} 
+                onCancel={handleRegistrationCancel}
+                initialBarcode={barcodeToRegister}
+            />
+        );
+    }
 
     if (currentView === 'analysis') {
       return <AnalysisSection items={items} />;
@@ -172,13 +202,16 @@ const AppContent: React.FC = () => {
       />
       <main className="container mx-auto p-4 md:p-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2">
+          <div className={currentView === 'product_registration' ? 'lg:col-span-3' : 'lg:col-span-2'}>
             {renderMainContent()}
           </div>
           <div className="space-y-8">
             {currentView === 'list' && (
               <>
-                <AddItemForm onAddItem={handleAddItem} />
+                <AddItemForm 
+                    onAddItem={handleAddItem} 
+                    onBarcodeNotFound={handleBarcodeNotFound} // Pass new handler
+                />
                 {items.length > 0 && <Totals totals={totals} />}
                 <Actions 
                   items={items} 

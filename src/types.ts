@@ -20,7 +20,7 @@ export interface ProductData {
   barcode?: string; // Novo campo
 }
 
-export type AppView = 'list' | 'analysis' | 'about' | 'saved_lists';
+export type AppView = 'list' | 'analysis' | 'about' | 'saved_lists' | 'product_registration';
 
 export type SortKey = 'none' | 'name' | 'category';
 
